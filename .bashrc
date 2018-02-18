@@ -4,27 +4,23 @@ alias emacs="LC_CTYPE=zh_CN.UTF-8 emacs"
 # can use colors based on .Xdefaults
 # or use 256 color palette
 function __in_git_repo {
-    if (git rev-parse --git-dir > /dev/null 2> /dev/null); then
-        exit 0
-    else
-        exit 1
-    fi
+    git rev-parse --git-dir > /dev/null 2> /dev/null
 }
 
 function __git_dirty {
     while read line; do
 	status_code=$(echo $line | awk '{print $1;}')
 	if [[ "$status_code" =~ [MADRCU] ]]; then
-	    exit 0
+	    return 0
 	fi
     done < <(git status --porcelain)
 
-    exit 1
+    return 1
 }
 
 function __git_ps1_dirty {
-    if $(__in_git_repo); then
-	if $(__git_dirty); then
+    if __in_git_repo; then
+	if __git_dirty; then
 	    echo -n " (:<)"
 	else
 	    echo -n " (:3)"
